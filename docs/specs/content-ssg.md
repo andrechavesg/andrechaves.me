@@ -4,12 +4,12 @@
 Prerender both locales to static HTML so AI crawlers (GPTBot, ClaudeBot, PerplexityBot) see full content without executing JavaScript.
 
 ## Acceptance criteria
-- [ ] `vite-react-ssg` (or equivalent) emits static HTML for `/` and `/pt/`
-- [ ] View Source on `/` and `/pt/` contains name, role, Hefesto, PontoNet, ZapSign, writing list, contact, legal footer — not an empty `#root`
-- [ ] Meta, Open Graph, and JSON-LD are present in the initial HTML
-- [ ] Hero `<h1>` ships at full opacity from frame 1; only `transform` is animated
-- [ ] Production build succeeds with `npm run build`
-- [ ] Critical content is locale-specific and complete for EN and PT
+- [x] `vite-react-ssg` (or equivalent) emits static HTML for `/` and `/pt/`
+- [x] View Source on `/` and `/pt/` contains name, role, Hefesto, PontoNet, ZapSign, writing list, contact, legal footer — not an empty `#root`
+- [x] Meta, Open Graph, and JSON-LD are present in the initial HTML
+- [x] Hero `<h1>` ships at full opacity from frame 1; only `transform` is animated
+- [x] Production build succeeds with `npm run build`
+- [x] Critical content is locale-specific and complete for EN and PT
 
 ## Content entities (both locales)
 1. Cold open — name, role line, two CTAs

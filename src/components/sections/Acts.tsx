@@ -13,13 +13,21 @@ function ActShell({
   id,
   children,
   className = '',
+  label,
 }: {
   id: string
   children: React.ReactNode
   className?: string
+  /** Still-frame label — communicates the act without relying on choreography */
+  label?: string
 }) {
   return (
-    <section id={id} className={`section-act ${className}`} data-act={id}>
+    <section
+      id={id}
+      className={`section-act ${className}`}
+      data-act={id}
+      aria-label={label}
+    >
       <div className="mx-auto w-full max-w-6xl">{children}</div>
     </section>
   )
@@ -28,7 +36,7 @@ function ActShell({
 export function ColdOpen({ dict }: { dict: Dictionary }) {
   const a = dict.acts.coldOpen
   return (
-    <ActShell id={a.id}>
+    <ActShell id={a.id} label={a.h1}>
       <motion.div
         initial={false}
         animate={{ y: 0 }}
@@ -37,7 +45,7 @@ export function ColdOpen({ dict }: { dict: Dictionary }) {
       >
         <p className="text-molten text-sm font-medium tracking-wide mb-4">{a.role}</p>
         {/* Hero H1: full opacity from frame 1 — animate transform only (LCP) */}
-        <h1 className="hero-h1 text-[clamp(2.4rem,7vw,4.75rem)] text-white max-w-4xl">
+        <h1 className="hero-h1 text-[clamp(2.4rem,7vw,4.75rem)] text-white max-w-4xl opacity-100">
           {a.h1}
         </h1>
         <p className="mt-6 max-w-xl text-steel text-lg leading-relaxed">{a.sub}</p>
@@ -55,7 +63,7 @@ export function ColdOpen({ dict }: { dict: Dictionary }) {
 export function SwarmAct({ dict }: { dict: Dictionary }) {
   const a = dict.acts.swarm
   return (
-    <ActShell id={a.id}>
+    <ActShell id={a.id} label={a.title}>
       <GlassCard className="max-w-xl">
         <h2 className="font-display text-3xl md:text-4xl text-white">{a.title}</h2>
         <p className="mt-3 text-molten text-lg">{a.lead}</p>
@@ -74,24 +82,30 @@ export function GuardrailAct({ dict }: { dict: Dictionary }) {
   const [showVerified, setShowVerified] = useState(false)
 
   return (
-    <ActShell id={a.id}>
+    <ActShell id={a.id} label={a.title}>
       <GlassCard className="max-w-xl">
         <h2 className="font-display text-3xl md:text-4xl text-white">{a.title}</h2>
         <p className="mt-3 text-molten text-lg">{a.lead}</p>
         <p className="mt-4 text-steel leading-relaxed">{a.body}</p>
 
-        <div className="mt-6 flex flex-wrap gap-3" role="group" aria-label="Human in the loop">
+        <div className="mt-6 flex flex-wrap gap-3" role="group" aria-label={a.title}>
           <GlassButton
             onClick={() => {
               setHitl('approved')
               setShowVerified(true)
-              window.setTimeout(() => triggerLied(), 1200)
+              window.setTimeout(() => triggerLied(), 1400)
             }}
             disabled={hitl === 'lied'}
           >
             {a.approve}
           </GlassButton>
-          <GlassButton variant="secondary" onClick={() => setHitl('rejected')}>
+          <GlassButton
+            variant="secondary"
+            onClick={() => {
+              setHitl('rejected')
+              setShowVerified(false)
+            }}
+          >
             {a.reject}
           </GlassButton>
         </div>
@@ -100,13 +114,14 @@ export function GuardrailAct({ dict }: { dict: Dictionary }) {
           <p
             className={`mt-4 text-sm font-medium ${greenCheckLied ? 'text-molten' : 'text-emerald-400'}`}
             role="status"
+            aria-live="polite"
           >
             {greenCheckLied ? a.liedReveal : `✓ ${a.liedLabel}`}
           </p>
         )}
         {hitl === 'rejected' && (
-          <p className="mt-4 text-sm text-steel" role="status">
-            Rejected — swarm reset.
+          <p className="mt-4 text-sm text-steel" role="status" aria-live="polite">
+            {a.reject}
           </p>
         )}
       </GlassCard>
@@ -117,9 +132,14 @@ export function GuardrailAct({ dict }: { dict: Dictionary }) {
 export function HefestoAct({ dict }: { dict: Dictionary }) {
   const a = dict.acts.hefesto
   return (
-    <ActShell id={a.id}>
+    <ActShell id={a.id} label={a.title}>
       <GlassCard className="max-w-xl">
-        <div className="mb-4 h-12 w-12 rounded-sm bg-gradient-to-br from-ember to-deep-amber" aria-hidden />
+        <div
+          className="mb-4 flex h-12 w-12 items-center justify-center rounded-sm bg-gradient-to-br from-ember to-deep-amber font-display text-sm font-semibold text-forge"
+          aria-hidden
+        >
+          H
+        </div>
         <h2 className="font-display text-3xl md:text-4xl text-white">{a.title}</h2>
         <p className="mt-3 text-molten text-lg">{a.lead}</p>
         <p className="mt-4 text-steel leading-relaxed">{a.body}</p>
@@ -131,9 +151,14 @@ export function HefestoAct({ dict }: { dict: Dictionary }) {
 export function PontoNetAct({ dict }: { dict: Dictionary }) {
   const a = dict.acts.pontonet
   return (
-    <ActShell id={a.id}>
+    <ActShell id={a.id} label={a.title}>
       <GlassCard className="max-w-xl">
-        <div className="mb-4 h-12 w-12 rounded-sm border border-molten/50 bg-slag" aria-hidden />
+        <div
+          className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-molten/50 bg-slag font-display text-xs font-semibold text-molten"
+          aria-hidden
+        >
+          PN
+        </div>
         <h2 className="font-display text-3xl md:text-4xl text-white">{a.title}</h2>
         <p className="mt-3 text-molten text-lg">{a.lead}</p>
         <p className="mt-4 text-steel leading-relaxed">{a.body}</p>
@@ -148,7 +173,7 @@ export function PontoNetAct({ dict }: { dict: Dictionary }) {
 export function RecordAct({ dict, posts }: { dict: Dictionary; posts: MediumPost[] }) {
   const a = dict.acts.record
   return (
-    <ActShell id={a.id}>
+    <ActShell id={a.id} label={a.title}>
       <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr]">
         <GlassCard>
           <h2 className="font-display text-3xl md:text-4xl text-white">{a.title}</h2>
@@ -201,7 +226,7 @@ export function RecordAct({ dict, posts }: { dict: Dictionary; posts: MediumPost
 export function CoolingAct({ dict }: { dict: Dictionary }) {
   const a = dict.acts.cooling
   return (
-    <ActShell id={a.id}>
+    <ActShell id={a.id} label={a.title}>
       <GlassCard className="max-w-xl">
         <h2 className="font-display text-3xl md:text-4xl text-white">{a.title}</h2>
         <p className="mt-3 text-molten text-lg">{a.lead}</p>

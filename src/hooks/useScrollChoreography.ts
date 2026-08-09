@@ -37,6 +37,15 @@ export function useScrollChoreography(enabled: boolean) {
 
     const triggers: ScrollTrigger[] = []
 
+    const syncHash = (id: string) => {
+      if (typeof history === 'undefined') return
+      const next = `#${id}`
+      if (window.location.hash !== next) {
+        history.replaceState(null, '', `${window.location.pathname}${window.location.search}${next}`)
+        window.dispatchEvent(new HashChangeEvent('hashchange'))
+      }
+    }
+
     ACT_MAP.forEach(({ id, act }, index) => {
       const el = document.getElementById(id)
       if (!el) return
@@ -44,8 +53,14 @@ export function useScrollChoreography(enabled: boolean) {
         trigger: el,
         start: 'top center',
         end: 'bottom center',
-        onEnter: () => setAct(act),
-        onEnterBack: () => setAct(act),
+        onEnter: () => {
+          setAct(act)
+          syncHash(id)
+        },
+        onEnterBack: () => {
+          setAct(act)
+          syncHash(id)
+        },
         onUpdate: (self) => {
           const global = (index + self.progress) / ACT_MAP.length
           setProgress(global)

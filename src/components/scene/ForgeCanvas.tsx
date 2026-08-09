@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { Swarm } from './Swarm'
 import { GuardrailLattice } from './GuardrailLattice'
 import { Emblems } from './Emblems'
@@ -32,19 +32,37 @@ function SceneLights() {
   return (
     <>
       <color attach="background" args={['#0A0705']} />
-      <ambientLight intensity={0.15} />
-      <pointLight position={[2, 3, 2]} intensity={12} color="#FF6A00" distance={20} />
-      <pointLight position={[-3, 1, -2]} intensity={4} color="#FF8A1E" distance={16} />
+      <fog attach="fog" args={['#0A0705', 8, 18]} />
+      <ambientLight intensity={0.12} />
+      <pointLight position={[2.5, 3.2, 2]} intensity={10} color="#FF6A00" distance={18} />
+      <pointLight position={[-3, 1.2, -2]} intensity={3.5} color="#FF8A1E" distance={14} />
       <spotLight
-        position={[0, 6, 4]}
-        angle={0.4}
-        penumbra={0.8}
-        intensity={8}
+        position={[0, 6.5, 4]}
+        angle={0.42}
+        penumbra={0.85}
+        intensity={7}
         color="#fff5eb"
         castShadow={false}
       />
     </>
   )
+}
+
+/** Pause rAF when tab hidden; resume with invalidate when visible again. */
+function VisibilityGate() {
+  const { invalidate, setFrameloop } = useThree()
+  useEffect(() => {
+    const onVis = () => {
+      if (document.hidden) setFrameloop('never')
+      else {
+        setFrameloop('always')
+        invalidate()
+      }
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [invalidate, setFrameloop])
+  return null
 }
 
 export function ForgeCanvas() {
@@ -73,17 +91,22 @@ export function ForgeCanvas() {
     setReady(true)
   }, [reducedMotion, setTier])
 
+  // Reduced motion / static: poster only — no rAF loop (plan §4)
   if (!ready || tier === 'static' || !shouldRunAnimationLoop(reducedMotion)) {
     return (
       <div
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_25%_15%,#c2410c44,transparent_45%),#0a0705]"
+        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_25%_15%,#c2410c55,transparent_40%),radial-gradient(ellipse_at_70%_80%,#ff6a0018,transparent_45%),#0a0705]"
         aria-hidden
       />
     )
   }
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-0" style={{ width: '100%', height: '100%' }} aria-hidden>
+    <div
+      className="pointer-events-none fixed inset-0 z-0"
+      style={{ width: '100%', height: '100%' }}
+      aria-hidden
+    >
       <Canvas
         dpr={[1, cfg.dprMax]}
         gl={{
@@ -92,12 +115,13 @@ export function ForgeCanvas() {
           alpha: false,
           stencil: false,
         }}
-        camera={{ position: [0, 0.4, 6.5], fov: 45, near: 0.1, far: 40 }}
+        camera={{ position: [0, 0.35, 6.2], fov: 45, near: 0.1, far: 40 }}
         frameloop="always"
         onCreated={({ gl }) => {
           gl.setClearColor('#0A0705')
         }}
       >
+        <VisibilityGate />
         <SceneLights />
         <CameraRig />
         <Swarm />

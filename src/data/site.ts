@@ -8,8 +8,9 @@ export const PERSON = {
   formerTitle: 'CTO',
   employer: 'ZapSign',
   email: 'andre@hefesto.software',
+  // LinkedIn verified via GitHub profile blog field (andrechavesg → andre-chaves-31857b112)
   sameAs: [
-    'https://www.linkedin.com/in/andrechavesg/',
+    'https://www.linkedin.com/in/andre-chaves-31857b112/',
     'https://medium.com/@symfonymaestro',
     'https://pontonet.app/',
     'https://zapsign.com.br/',

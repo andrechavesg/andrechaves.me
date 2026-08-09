@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import type { Dictionary } from '@/locales/en'
+import { alternatePath, localeFromPath } from '@/lib/i18n'
 import { GlassButton } from './GlassButton'
 
 interface Props {
@@ -8,6 +10,18 @@ interface Props {
 }
 
 export function GlassNav({ dict, motionEnabled, onToggleMotion }: Props) {
+  const [localeHref, setLocaleHref] = useState(dict.altPath)
+
+  useEffect(() => {
+    const sync = () => {
+      const locale = localeFromPath(window.location.pathname)
+      setLocaleHref(alternatePath(locale, window.location.hash))
+    }
+    sync()
+    window.addEventListener('hashchange', sync)
+    return () => window.removeEventListener('hashchange', sync)
+  }, [])
+
   return (
     <header className="fixed top-0 inset-x-0 z-40">
       <a
@@ -49,7 +63,7 @@ export function GlassNav({ dict, motionEnabled, onToggleMotion }: Props) {
           >
             {motionEnabled ? dict.nav.motionOn : dict.nav.motionOff}
           </button>
-          <GlassButton variant="ghost" href={dict.altPath} className="!px-2 !py-1 text-xs">
+          <GlassButton variant="ghost" href={localeHref} className="!px-2 !py-1 text-xs">
             {dict.altLabel}
           </GlassButton>
         </div>

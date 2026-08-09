@@ -13,9 +13,9 @@ export function Effects() {
     <EffectComposer multisampling={0} enableNormalPass={false}>
       {cfg.bloom ? (
         <Bloom
-          intensity={0.55}
-          luminanceThreshold={0.35}
-          luminanceSmoothing={0.4}
+          intensity={0.72}
+          luminanceThreshold={0.28}
+          luminanceSmoothing={0.45}
           mipmapBlur
           resolutionScale={cfg.bloomScale}
         />
@@ -24,9 +24,9 @@ export function Effects() {
       )}
       <ChromaticAberration
         blendFunction={BlendFunction.NORMAL}
-        offset={new Vector2(0.0006, 0.0008)}
+        offset={new Vector2(0.0007, 0.0009)}
       />
-      <Vignette eskil={false} offset={0.25} darkness={0.65} />
+      <Vignette eskil={false} offset={0.22} darkness={0.7} />
     </EffectComposer>
   )
 }

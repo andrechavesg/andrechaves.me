@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useSceneStore } from '@/stores/sceneStore'
-import { tierConfig } from '@/lib/quality'
+import { adaptTier, tierConfig } from '@/lib/quality'
 import { simFragment, simVertex, renderFragment, renderVertex } from './shaders'
 
 const SIZE = 256 // 65,536 particles base; scaled via draw range
@@ -25,12 +25,11 @@ export function Swarm() {
     const rtA = new THREE.WebGLRenderTarget(SIZE, SIZE, rtOpts)
     const rtB = new THREE.WebGLRenderTarget(SIZE, SIZE, rtOpts)
 
-    // seed positions
     const data = new Float32Array(SIZE * SIZE * 4)
     for (let i = 0; i < SIZE * SIZE; i++) {
-      data[i * 4] = (Math.random() - 0.5) * 0.2
-      data[i * 4 + 1] = (Math.random() - 0.5) * 0.2
-      data[i * 4 + 2] = (Math.random() - 0.5) * 0.2
+      data[i * 4] = (Math.random() - 0.5) * 0.15
+      data[i * 4 + 1] = (Math.random() - 0.5) * 0.15 - 0.55
+      data[i * 4 + 2] = (Math.random() - 0.5) * 0.15
       data[i * 4 + 3] = 1
     }
     const seed = new THREE.DataTexture(data, SIZE, SIZE, THREE.RGBAFormat, THREE.FloatType)
@@ -70,6 +69,7 @@ export function Swarm() {
       uniforms: {
         uPositions: { value: rtA.texture },
         uSize: { value: cfg.pointSize },
+        uProgress: { value: 0 },
       },
       transparent: true,
       depthWrite: false,
@@ -101,15 +101,14 @@ export function Swarm() {
 
   useFrame((state, delta) => {
     if (reducedMotion || tier === 'static') return
+    if (typeof document !== 'undefined' && document.hidden) return
 
     frames.current.push(delta * 1000)
-    if (frames.current.length > 60) {
-      frames.current.shift()
-      if (frames.current.length === 60) {
-        const avg = frames.current.reduce((a, b) => a + b, 0) / 60
-        if (avg > 22 && tier === 'high') setTier('medium')
-        else if (avg > 28 && tier === 'medium') setTier('low')
-      }
+    if (frames.current.length >= 60) {
+      const sample = frames.current.slice(-60)
+      const next = adaptTier(tier, { frameMs: sample })
+      if (next !== tier) setTier(next)
+      if (frames.current.length > 120) frames.current = sample
     }
 
     const hitlVal =
@@ -128,8 +127,10 @@ export function Swarm() {
     gl.render(simScene, simCamera)
     gl.setRenderTarget(prev)
 
-    ;(points.material as THREE.ShaderMaterial).uniforms.uPositions.value = write.texture
-    ;(points.material as THREE.ShaderMaterial).uniforms.uSize.value = cfg.pointSize
+    const renderMat = points.material as THREE.ShaderMaterial
+    renderMat.uniforms.uPositions.value = write.texture
+    renderMat.uniforms.uSize.value = cfg.pointSize
+    renderMat.uniforms.uProgress.value = progress
     flip.current = !flip.current
   })
 

@@ -30,4 +30,11 @@ describe('JSON-LD linked blocks', () => {
     expect(profile['@type']).toBe('ProfilePage')
     expect(profile.mainEntity).toEqual({ '@id': IDS.person })
   })
+
+  it('Person sameAs uses verified LinkedIn slug from GitHub blog', () => {
+    const person = buildAllJsonLd('en').find((b) => b['@id'] === IDS.person)!
+    const sameAs = person.sameAs as string[]
+    expect(sameAs).toContain('https://www.linkedin.com/in/andre-chaves-31857b112/')
+    expect(sameAs.some((u) => u.includes('linkedin.com/in/andrechavesg'))).toBe(false)
+  })
 })
