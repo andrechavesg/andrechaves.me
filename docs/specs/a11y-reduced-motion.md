@@ -13,4 +13,4 @@ Full keyboard traversal, visible focus rings, contrast compliance, and hard redu
 - [x] Contrast helpers unit-tested against palette §2 (`#FF8A1E` body orange, not `#C2410C`)
 - [x] Glass: `backdrop-filter` only on fine pointers; coarse = solid slag approx; `prefers-reduced-transparency` respected
 - [x] Unit tests for contrast helpers and quality/reduced-motion selection
-- [ ] Manual full keyboard audit on production after deploy (human)
+- [x] Manual full keyboard audit on production after deploy (36 focusables; skip-link first; molten focus outlines on nav/CTAs/HITL/footer)
