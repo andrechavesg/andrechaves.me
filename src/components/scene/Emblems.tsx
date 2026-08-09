@@ -1,7 +1,6 @@
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
-import { Text } from '@react-three/drei'
 import { useSceneStore } from '@/stores/sceneStore'
 import { springStep } from '@/lib/spring'
 import { extrudeSvgPath, mergeGeometries } from '@/lib/svg-shape'
@@ -88,69 +87,6 @@ function PontoNetEmblem() {
   )
 }
 
-function ExtrudedName() {
-  const group = useRef<THREE.Group>(null)
-  const opacityVel = useRef(0)
-  const opacityVal = useRef(1)
-  const act = useSceneStore((s) => s.act)
-
-  useFrame((_, dt) => {
-    if (!group.current) return
-    const on = act === 'cold-open' ? 1 : act === 'swarm' ? 0.35 : 0.12
-    const stepped = springStep(opacityVal.current, on, opacityVel.current, dt, 70, 14)
-    opacityVal.current = stepped.value
-    opacityVel.current = stepped.velocity
-    group.current.position.set(0, 1.55, -1.2)
-    group.current.rotation.x = -0.12
-    group.current.visible = opacityVal.current > 0.08
-    group.current.traverse((child) => {
-      const mat = (child as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined
-      if (mat && 'opacity' in mat) {
-        mat.transparent = true
-        mat.opacity = opacityVal.current
-        mat.emissiveIntensity = 0.2 + opacityVal.current * 0.55
-      }
-    })
-  })
-
-  return (
-    <group ref={group}>
-      {/* Metallic extruded display type via troika Text (through drei — not a direct dep) */}
-      <Text
-        fontSize={0.52}
-        letterSpacing={-0.035}
-        anchorX="center"
-        anchorY="middle"
-        maxWidth={8}
-        outlineWidth={0.012}
-        outlineColor="#0A0705"
-      >
-        ANDRÉ CHAVES
-        <meshStandardMaterial
-          color="#c4cdd8"
-          metalness={1}
-          roughness={0.18}
-          emissive="#FF6A00"
-          emissiveIntensity={0.35}
-          transparent
-        />
-      </Text>
-      {/* Depth plate under type for extruded-metal read in still frames */}
-      <mesh position={[0, -0.02, -0.08]}>
-        <boxGeometry args={[5.2, 0.55, 0.12]} />
-        <meshStandardMaterial
-          color="#1c1917"
-          metalness={0.95}
-          roughness={0.3}
-          emissive="#C2410C"
-          emissiveIntensity={0.15}
-          transparent
-        />
-      </mesh>
-    </group>
-  )
-}
-
 function SingleEmber() {
   const light = useRef<THREE.PointLight>(null)
   const act = useSceneStore((s) => s.act)
@@ -169,7 +105,6 @@ function SingleEmber() {
 export function Emblems() {
   return (
     <group>
-      <ExtrudedName />
       <SingleEmber />
       <HefestoEmblem />
       <PontoNetEmblem />
