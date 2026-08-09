@@ -21,13 +21,13 @@ function SceneLights() {
       <color attach="background" args={['#0A0705']} />
       <fog attach="fog" args={['#0A0705', 8, 18]} />
       <ambientLight intensity={0.12} />
-      <pointLight position={[2.5, 3.2, 2]} intensity={10} color="#FF6A00" distance={18} />
-      <pointLight position={[-3, 1.2, -2]} intensity={3.5} color="#FF8A1E" distance={14} />
+      <pointLight position={[2.8, 3.0, 2]} intensity={5.5} color="#FF6A00" distance={16} />
+      <pointLight position={[0.5, 1.2, -2]} intensity={2.0} color="#FF8A1E" distance={12} />
       <spotLight
-        position={[0, 6.5, 4]}
-        angle={0.42}
-        penumbra={0.85}
-        intensity={7}
+        position={[2.0, 6.0, 4]}
+        angle={0.38}
+        penumbra={0.9}
+        intensity={4.5}
         color="#fff5eb"
         castShadow={false}
       />

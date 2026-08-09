@@ -14,9 +14,9 @@ export function Effects() {
     <EffectComposer multisampling={0} enableNormalPass={false} stencilBuffer={false}>
       {cfg.bloom ? (
         <Bloom
-          intensity={0.65}
-          luminanceThreshold={0.32}
-          luminanceSmoothing={0.45}
+          intensity={0.38}
+          luminanceThreshold={0.48}
+          luminanceSmoothing={0.55}
           mipmapBlur={cfg.bloomMipmap}
           resolutionScale={cfg.bloomScale}
         />

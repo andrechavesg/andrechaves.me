@@ -61,30 +61,30 @@ export function tierConfig(tier: QualityTier) {
   switch (tier) {
     case 'high':
       return {
-        particles: 16_384,
+        particles: 12_288,
         bloom: true,
         bloomMipmap: true,
-        bloomScale: 0.4,
+        bloomScale: 0.28,
         dprMax: 1.25,
-        pointSize: 1.2,
+        pointSize: 0.85,
       }
     case 'medium':
       return {
-        particles: 10_240,
+        particles: 7_168,
         bloom: true,
         bloomMipmap: false,
-        bloomScale: 0.3,
+        bloomScale: 0.22,
         dprMax: 1.0,
-        pointSize: 1.0,
+        pointSize: 0.7,
       }
     case 'low':
       return {
-        particles: 4_096,
+        particles: 3_072,
         bloom: false,
         bloomMipmap: false,
         bloomScale: 0,
         dprMax: 1.0,
-        pointSize: 0.9,
+        pointSize: 0.55,
       }
     case 'static':
       return {

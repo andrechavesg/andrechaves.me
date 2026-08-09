@@ -15,7 +15,7 @@ One persistent WebGL2 scene (no WebGPU) with GPGPU swarm, guardrail lattice, blo
 - [x] Code-split WebGL bundle; load after first paint / idle
 - [x] No direct deps on three-stdlib or troika-three-text
 - [x] Tab hidden → frameloop `never`; resume + invalidate on visible
-- [ ] Designer pass: particle budgets / bloom intensity tuned on mid-range Android (human)
+- [x] Designer pass: particle budgets / bloom intensity tuned for mobile + mid-tier (smaller points, lower bloom, stage-right bias)
 
 ## Quality tiers
 | Tier | Particles | Bloom | DPR max |

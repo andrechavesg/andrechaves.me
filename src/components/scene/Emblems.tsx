@@ -27,17 +27,19 @@ function HefestoEmblem() {
 
   useFrame((_, dt) => {
     if (!mesh.current) return
-    const on = act === 'hefesto' ? 1 : act === 'cold-open' ? 0.08 : 0.18
-    const target = 0.55 * (0.65 + on * 0.55)
+    // Only fully present on the Hefesto act — faint bleed on other acts + bloom
+    // washed out DOM copy (especially on mobile).
+    const on = act === 'hefesto' ? 1 : 0
+    const target = on > 0 ? 0.72 : 0
     const stepped = springStep(scaleVal.current, target, scaleVel.current, dt, 90, 16)
     scaleVal.current = stepped.value
     scaleVel.current = stepped.velocity
-    mesh.current.position.set(-2.2, 0.1, 0)
+    mesh.current.position.set(1.6, 0.15, 0)
     mesh.current.rotation.y += dt * (act === 'hefesto' ? 0.55 : 0.12)
     mesh.current.scale.setScalar(scaleVal.current)
     const mat = mesh.current.material as THREE.MeshStandardMaterial
-    mat.emissiveIntensity = 0.15 + on * 1.1
-    mesh.current.visible = on > 0.05
+    mat.emissiveIntensity = 0.2 + on * 0.75
+    mesh.current.visible = scaleVal.current > 0.04
   })
 
   return (
@@ -61,17 +63,17 @@ function PontoNetEmblem() {
 
   useFrame((_, dt) => {
     if (!mesh.current) return
-    const on = act === 'pontonet' ? 1 : 0.18
-    const target = 0.5 * (0.65 + on * 0.55)
+    const on = act === 'pontonet' ? 1 : 0
+    const target = on > 0 ? 0.65 : 0
     const stepped = springStep(scaleVal.current, target, scaleVel.current, dt, 90, 16)
     scaleVal.current = stepped.value
     scaleVel.current = stepped.velocity
-    mesh.current.position.set(2.2, 0.1, 0)
+    mesh.current.position.set(1.7, 0.1, 0)
     mesh.current.rotation.z -= dt * (act === 'pontonet' ? 0.65 : 0.15)
     mesh.current.scale.setScalar(scaleVal.current)
     const mat = mesh.current.material as THREE.MeshStandardMaterial
-    mat.emissiveIntensity = 0.12 + on * 0.95
-    mesh.current.visible = on > 0.05
+    mat.emissiveIntensity = 0.15 + on * 0.7
+    mesh.current.visible = scaleVal.current > 0.04
   })
 
   return (
@@ -95,8 +97,9 @@ function SingleEmber() {
     if (!light.current) return
     const on = act === 'cold-open' || act === 'cooling' ? 1 : 0.25
     const pulse = 0.85 + Math.sin(state.clock.elapsedTime * 3.2) * 0.15
-    light.current.intensity = 18 * on * pulse
-    light.current.position.set(0, -0.55, 0.4)
+    light.current.intensity = 8 * on * pulse
+    // Bias right so left-column DOM copy stays readable
+    light.current.position.set(1.1, -0.55, 0.4)
   })
 
   return <pointLight ref={light} color="#FF6A00" distance={12} decay={2} />

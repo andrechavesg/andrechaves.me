@@ -33,29 +33,32 @@ void main() {
   float record = smoothstep(0.78, 0.88, uProgress) * (1.0 - smoothstep(0.9, 0.97, uProgress));
   float cool = smoothstep(0.9, 1.0, uProgress);
 
+  // Bias formations into the right half so left-column DOM stays legible.
+  const float stageX = 1.35;
+
   // Cold open: single ember cluster + sparse ash
-  float emberR = mix(0.08, 0.35, step(0.92, id));
+  float emberR = mix(0.08, 0.28, step(0.92, id));
   vec3 ember = vec3(
-    sin(id * 40.0) * emberR * 0.15,
-    cos(id2 * 33.0) * emberR * 0.15 - 0.6,
-    (id - 0.5) * emberR * 0.2
+    stageX + sin(id * 40.0) * emberR * 0.12,
+    cos(id2 * 33.0) * emberR * 0.12 - 0.65,
+    (id - 0.5) * emberR * 0.18
   );
   // Keep most particles near the ember; a few drift as ash
   if (id < 0.92) {
-    ember = vec3(0.0, -0.55, 0.0) + vec3(sin(id * 12.0), cos(id2 * 9.0), sin(id * 7.0)) * 0.12;
+    ember = vec3(stageX, -0.6, 0.0) + vec3(sin(id * 12.0), cos(id2 * 9.0), sin(id * 7.0)) * 0.1;
   }
 
-  // Swarm: self-organising helix / ring
+  // Swarm: self-organising helix / ring (smaller, stage-right)
   float ang = id * 6.28318 + uTime * 0.35;
-  float radius = 1.2 + id2 * 1.4;
+  float radius = 0.75 + id2 * 0.85;
   vec3 ring = vec3(
-    cos(ang) * radius,
-    sin(ang * 1.5 + uTime * 0.2) * 0.85,
-    sin(ang) * radius * 0.65
+    stageX + cos(ang) * radius,
+    sin(ang * 1.5 + uTime * 0.2) * 0.55,
+    sin(ang) * radius * 0.55
   );
 
-  // Guardrail: cubic lattice
-  vec3 origin = vec3((vUv.x - 0.5) * 7.0, (vUv.y - 0.5) * 7.0, id * 3.0 - 1.5);
+  // Guardrail: cubic lattice (stage-right)
+  vec3 origin = vec3((vUv.x - 0.5) * 5.0 + stageX, (vUv.y - 0.5) * 5.0, id * 2.4 - 1.2);
   vec3 lattice = vec3(
     floor(origin.x * 1.6) / 1.6,
     floor(origin.y * 1.6) / 1.6,
@@ -65,25 +68,25 @@ void main() {
   // Studio / product: anvil plate vs clock disc
   float a2 = id * 6.28318;
   vec3 anvil = vec3(
-    mix(-1.4, 1.4, vUv.x) * 0.9 - 2.0,
-    mix(-0.6, 0.9, smoothstep(0.3, 0.7, vUv.y)) * 0.8,
-    (id - 0.5) * 0.4
+    stageX + mix(-0.8, 0.8, vUv.x) * 0.7,
+    mix(-0.5, 0.7, smoothstep(0.3, 0.7, vUv.y)) * 0.7,
+    (id - 0.5) * 0.35
   );
   vec3 disc = vec3(
-    cos(a2) * (0.5 + id2 * 0.9) + 2.0,
-    sin(a2) * (0.5 + id2 * 0.9),
-    sin(uTime * 0.3 + id) * 0.2
+    stageX + cos(a2) * (0.4 + id2 * 0.7),
+    sin(a2) * (0.4 + id2 * 0.7),
+    sin(uTime * 0.3 + id) * 0.18
   );
 
   // Record: vertical columns (timeline)
   vec3 columns = vec3(
-    floor(id * 9.0) * 0.55 - 2.2,
-    (vUv.y - 0.5) * 3.2,
-    (id2 - 0.5) * 0.8
+    stageX + floor(id * 7.0) * 0.4 - 1.2,
+    (vUv.y - 0.5) * 2.8,
+    (id2 - 0.5) * 0.6
   );
 
   // Cooling: settle to floor embers
-  vec3 banked = vec3((vUv.x - 0.5) * 5.0, -1.4 + id * 0.15, (vUv.y - 0.5) * 3.0);
+  vec3 banked = vec3(stageX + (vUv.x - 0.5) * 3.5, -1.4 + id * 0.12, (vUv.y - 0.5) * 2.5);
 
   vec3 target = ember * cold
     + ring * swarm
@@ -99,9 +102,9 @@ void main() {
   if (uHitl > 0.5 && uHitl < 1.5) {
     // Approved: tighten toward a verified glyph (checkmark-ish fold)
     vec3 check = vec3(
-      mix(-0.6, 0.2, smoothstep(0.0, 0.45, id)) + mix(0.2, 0.9, smoothstep(0.45, 1.0, id)) * 0.5,
-      mix(-0.4, 0.1, smoothstep(0.0, 0.45, id)) + mix(0.1, 0.7, smoothstep(0.45, 1.0, id)) * -0.35,
-      (id2 - 0.5) * 0.15
+      stageX + mix(-0.5, 0.15, smoothstep(0.0, 0.45, id)) + mix(0.15, 0.7, smoothstep(0.45, 1.0, id)) * 0.45,
+      mix(-0.35, 0.08, smoothstep(0.0, 0.45, id)) + mix(0.08, 0.55, smoothstep(0.45, 1.0, id)) * -0.3,
+      (id2 - 0.5) * 0.12
     );
     target = mix(target, check, 0.85);
   }
@@ -132,7 +135,7 @@ void main() {
   vAct = uProgress;
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   float pulse = 1.0 + 0.15 * sin(pos.x * 3.0 + pos.y * 2.0);
-  gl_PointSize = uSize * pulse * (280.0 / -mv.z);
+  gl_PointSize = uSize * pulse * (160.0 / -mv.z);
   gl_Position = projectionMatrix * mv;
 }
 `

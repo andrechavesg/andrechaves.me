@@ -20,4 +20,4 @@ Seven cinematic acts driven by GSAP ScrollTrigger against one persistent scene; 
 - [x] One-time "green check lied" narrative beat
 - [x] Lenis smooth scroll (package `lenis`, not @studio-freight/lenis)
 - [x] Name is DOM-only H1 (no 3D display type); SVG ExtrudeGeometry emblems for Hefesto / PontoNet
-- [ ] Human design revision: still-frame screenshots of all 7 acts signed off visually
+- [x] Human design revision: still-frame screenshots of all 7 acts signed off visually (stage-right forge, act-gated emblems, reduced bloom; mobile copy clear)
