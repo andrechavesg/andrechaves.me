@@ -33,6 +33,8 @@ export function Page({ locale }: { locale: Locale }) {
   const setReducedMotion = useSceneStore((s) => s.setReducedMotion)
   const reducedMotion = useSceneStore((s) => s.reducedMotion)
   const [pref, setPref] = useState<MotionPreference>('system')
+  // Mount on the client after hydration. The webgl chunk is already modulepreloaded
+  // in index.html — an idle gate previously stalled forever on busy main threads.
   const [showCanvas, setShowCanvas] = useState(false)
 
   useScrollChoreography(!reducedMotion)
@@ -41,45 +43,41 @@ export function Page({ locale }: { locale: Locale }) {
     const stored = readStoredMotion()
     setPref(stored)
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const apply = () => {
-      const reduced = resolveReducedMotion(stored, mq.matches)
-      setReducedMotion(reduced)
+    const apply = (preference: MotionPreference) => {
+      setReducedMotion(resolveReducedMotion(preference, mq.matches))
     }
-    apply()
-    const onChange = () => {
-      const current = readStoredMotion()
-      setReducedMotion(resolveReducedMotion(current, mq.matches))
-    }
+    apply(stored)
+    const onChange = () => apply(readStoredMotion())
     mq.addEventListener('change', onChange)
     return () => mq.removeEventListener('change', onChange)
   }, [setReducedMotion])
 
   useEffect(() => {
-    if (reducedMotion) return
+    if (reducedMotion) {
+      setShowCanvas(false)
+      return
+    }
+    // Double-rAF: wait one paint after hydration, then mount the forge.
     let cancelled = false
-    const reveal = () => {
+    let raf2 = 0
+    const raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => {
+        if (!cancelled) setShowCanvas(true)
+      })
+    })
+    const backup = window.setTimeout(() => {
       if (!cancelled) setShowCanvas(true)
-    }
-    if (typeof window.requestIdleCallback === 'function') {
-      const id = window.requestIdleCallback(reveal)
-      return () => {
-        cancelled = true
-        window.cancelIdleCallback(id)
-      }
-    }
-    const id = window.setTimeout(reveal, 200)
+    }, 50)
     return () => {
       cancelled = true
-      window.clearTimeout(id)
+      window.cancelAnimationFrame(raf1)
+      window.cancelAnimationFrame(raf2)
+      window.clearTimeout(backup)
     }
   }, [reducedMotion])
 
   const toggleMotion = () => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const next: MotionPreference =
-      pref === 'off' ? 'on' : pref === 'on' ? 'system' : mq.matches ? 'on' : 'off'
-    // cycle: system → opposite of system → system...
-    // simpler: toggle between on and off with explicit override
     const explicit: MotionPreference = resolveReducedMotion(pref, mq.matches) ? 'on' : 'off'
     writeStoredMotion(explicit)
     setPref(explicit)

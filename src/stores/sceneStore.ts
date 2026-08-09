@@ -35,10 +35,11 @@ export const useSceneStore = create<SceneState>((set) => ({
   reducedMotion: false,
   hitl: 'idle',
   greenCheckLied: false,
-  setAct: (act) => set({ act }),
-  setProgress: (progress) => set({ progress }),
-  setTier: (tier) => set({ tier }),
-  setReducedMotion: (reducedMotion) => set({ reducedMotion }),
-  setHitl: (hitl) => set({ hitl }),
+  setAct: (act) => set((s) => (s.act === act ? s : { act })),
+  setProgress: (progress) => set((s) => (s.progress === progress ? s : { progress })),
+  setTier: (tier) => set((s) => (s.tier === tier ? s : { tier })),
+  setReducedMotion: (reducedMotion) =>
+    set((s) => (s.reducedMotion === reducedMotion ? s : { reducedMotion })),
+  setHitl: (hitl) => set((s) => (s.hitl === hitl ? s : { hitl })),
   triggerGreenCheckLied: () => set({ greenCheckLied: true, hitl: 'lied' }),
 }))

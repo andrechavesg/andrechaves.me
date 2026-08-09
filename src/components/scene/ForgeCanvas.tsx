@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import { Swarm } from './Swarm'
 import { GuardrailLattice } from './GuardrailLattice'
 import { Emblems } from './Emblems'
@@ -8,10 +8,12 @@ import { Effects } from './Effects'
 import { useSceneStore } from '@/stores/sceneStore'
 import { selectInitialTier, tierConfig } from '@/lib/quality'
 import { shouldRunAnimationLoop } from '@/lib/motion-preference'
-import { inspectWebGLRenderer, probeWebGL2 } from '@/lib/webgl-probe'
+import { inspectWebGLRenderer } from '@/lib/webgl-probe'
 
 const POSTER_CLASS =
   'pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_25%_15%,#c2410c55,transparent_40%),radial-gradient(ellipse_at_70%_80%,#ff6a0018,transparent_45%),#0a0705]'
+
+type FallbackReason = 'static-tier' | 'context-lost' | 'reduced-motion'
 
 function SceneLights() {
   return (
@@ -55,7 +57,6 @@ function ContextLossBridge({ onLost }: { onLost: () => void }) {
   useEffect(() => {
     const canvas = gl.domElement
     const handleLost = (event: Event) => {
-      // Prefer a clean poster fallback over a half-dead GPGPU pipeline.
       event.preventDefault()
       onLost()
     }
@@ -65,13 +66,108 @@ function ContextLossBridge({ onLost }: { onLost: () => void }) {
   return null
 }
 
+/**
+ * Defer postprocessing until the GPGPU swarm has warmed up a few frames.
+ * Mounting EffectComposer + Bloom in the same tick as FBO allocation is a
+ * common VRAM spike that triggers Context Lost on desktop Chrome.
+ */
+function DeferredEffects() {
+  const [ready, setReady] = useState(false)
+  const frames = useRef(0)
+
+  useFrame(() => {
+    if (ready) return
+    frames.current += 1
+    if (frames.current >= 8) setReady(true)
+  })
+
+  if (!ready) return null
+  return <Effects />
+}
+
+/**
+ * Capability check on the *live* R3F renderer — never allocate a second context.
+ * Only software rasterizers force the poster; a working Canvas is not torn down
+ * by a flaky WebGL2 version string check.
+ */
+function CapabilityBootstrap({
+  onMeta,
+}: {
+  onMeta: (meta: { renderer: string; version: string }) => void
+}) {
+  const { gl } = useThree()
+  const setTier = useSceneStore((s) => s.setTier)
+  const reducedMotion = useSceneStore((s) => s.reducedMotion)
+  const done = useRef(false)
+
+  useEffect(() => {
+    if (done.current) return
+    done.current = true
+
+    const inspected = inspectWebGLRenderer(gl)
+    let version = ''
+    try {
+      const ctx = gl.getContext()
+      version = String(ctx.getParameter(ctx.VERSION) ?? '')
+    } catch {
+      version = ''
+    }
+    onMeta({ renderer: inspected.renderer, version })
+
+    // Soft rasterizers cannot sustain the forge — fall back.
+    // Do NOT treat a missing/odd version string as fatal: the Canvas already exists.
+    if (inspected.software) {
+      setTier('static')
+      return
+    }
+
+    const coarse = window.matchMedia('(pointer: coarse)').matches
+    const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
+      ?.saveData
+
+    const next = selectInitialTier({
+      webgl2: true,
+      softwareRasterizer: false,
+      coarsePointer: coarse,
+      deviceMemory: mem,
+      saveData,
+      reducedMotion,
+      gpuTier: coarse ? 2 : 3,
+    })
+    // reducedMotion is already gated by the parent; keep a non-static tier here.
+    setTier(next === 'static' ? 'medium' : next)
+  }, [gl, onMeta, reducedMotion, setTier])
+
+  return null
+}
+
+function Poster({
+  reason,
+  renderer,
+  version,
+}: {
+  reason: FallbackReason
+  renderer?: string
+  version?: string
+}) {
+  return (
+    <div
+      className={POSTER_CLASS}
+      data-forge-fallback={reason}
+      data-forge-renderer={renderer || ''}
+      data-forge-version={version || ''}
+      aria-hidden
+    />
+  )
+}
+
 export function ForgeCanvas() {
   const tier = useSceneStore((s) => s.tier)
   const setTier = useSceneStore((s) => s.setTier)
   const reducedMotion = useSceneStore((s) => s.reducedMotion)
-  const [ready, setReady] = useState(false)
   const [contextLost, setContextLost] = useState(false)
-  const bootstrapped = useRef(false)
+  const [meta, setMeta] = useState({ renderer: '', version: '' })
   const cfg = tierConfig(tier === 'static' ? 'medium' : tier)
 
   const handleContextLost = useCallback(() => {
@@ -79,48 +175,35 @@ export function ForgeCanvas() {
     setTier('static')
   }, [setTier])
 
-  useEffect(() => {
-    // Probe releases its temporary context immediately (see webgl-probe.ts).
-    // This only decides whether to mount the real Canvas at all.
-    const { ok, software } = probeWebGL2()
-    const coarse = window.matchMedia('(pointer: coarse)').matches
-    const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory
-    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
-      ?.saveData
-    const next = selectInitialTier({
-      webgl2: ok,
-      softwareRasterizer: software,
-      coarsePointer: coarse,
-      deviceMemory: mem,
-      saveData,
-      reducedMotion,
-      gpuTier: coarse ? 2 : 3,
-    })
-    setTier(next)
-    setReady(true)
-  }, [reducedMotion, setTier])
+  const handleMeta = useCallback((next: { renderer: string; version: string }) => {
+    setMeta(next)
+  }, [])
 
-  const showPoster =
-    !ready ||
-    contextLost ||
-    tier === 'static' ||
-    !shouldRunAnimationLoop(reducedMotion)
-
-  if (showPoster) {
-    return <div className={POSTER_CLASS} aria-hidden />
+  if (reducedMotion || !shouldRunAnimationLoop(reducedMotion)) {
+    return <Poster reason="reduced-motion" {...meta} />
+  }
+  if (contextLost) {
+    return <Poster reason="context-lost" {...meta} />
+  }
+  // Soft-rasterizer path sets tier to static from CapabilityBootstrap.
+  if (tier === 'static') {
+    return <Poster reason="static-tier" {...meta} />
   }
 
   return (
     <div
       className="pointer-events-none fixed inset-0 z-0"
       style={{ width: '100%', height: '100%' }}
+      data-forge-fallback="live"
+      data-forge-renderer={meta.renderer}
+      data-forge-version={meta.version}
       aria-hidden
     >
       <Canvas
         dpr={[1, cfg.dprMax]}
         gl={{
           antialias: false,
-          powerPreference: 'high-performance',
+          powerPreference: 'default',
           alpha: false,
           stencil: false,
           depth: true,
@@ -130,16 +213,9 @@ export function ForgeCanvas() {
         frameloop="always"
         onCreated={({ gl }) => {
           gl.setClearColor('#0A0705')
-          // Re-validate on the real context (no second allocation). Soft rasterizers
-          // that slipped past the probe still fall back to the poster.
-          if (bootstrapped.current) return
-          bootstrapped.current = true
-          const inspected = inspectWebGLRenderer(gl)
-          if (!inspected.ok || inspected.software) {
-            setTier('static')
-          }
         }}
       >
+        <CapabilityBootstrap onMeta={handleMeta} />
         <ContextLossBridge onLost={handleContextLost} />
         <VisibilityGate />
         <SceneLights />
@@ -147,7 +223,7 @@ export function ForgeCanvas() {
         <Swarm />
         <GuardrailLattice />
         <Emblems />
-        <Effects />
+        <DeferredEffects />
       </Canvas>
     </div>
   )

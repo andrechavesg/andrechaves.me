@@ -51,6 +51,9 @@ describe('quality tier selection', () => {
   it('adaptive loop steps down when frames miss budget', () => {
     const slow = Array.from({ length: 60 }, () => 32)
     expect(adaptTier('high', { frameMs: slow })).toBe('medium')
+    expect(adaptTier('medium', { frameMs: slow })).toBe('low')
+    // Must not unmount the Canvas via adaptTier → static
+    expect(adaptTier('low', { frameMs: slow })).toBe('low')
     expect(tierConfig('low').bloom).toBe(false)
     expect(tierConfig('high').dprMax).toBe(1.25)
   })

@@ -45,14 +45,14 @@ export function adaptTier(current: QualityTier, sample: AdaptiveSample): Quality
   if (sample.frameMs.length < 30) return current
 
   const avg = sample.frameMs.reduce((a, b) => a + b, 0) / sample.frameMs.length
-  const order: QualityTier[] = ['high', 'medium', 'low', 'static']
+  // Never auto-step into `static` — that unmounts the Canvas and looks like a crash.
+  // Static is reserved for software GL / reduced-motion / context-lost.
+  const order: QualityTier[] = ['high', 'medium', 'low']
   const idx = order.indexOf(current)
+  if (idx < 0) return current
 
   if (avg > budget * 1.35 && idx < order.length - 1) return order[idx + 1]!
-  if (avg < budget * 0.7 && idx > 0 && current !== 'low') {
-    // only step up one from medium→high; never auto-escape static
-    if (current === 'medium') return 'high'
-  }
+  if (avg < budget * 0.7 && current === 'medium') return 'high'
   return current
 }
 

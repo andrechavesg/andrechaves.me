@@ -20,18 +20,17 @@ export function releaseWebGLContext(
 
 /**
  * Cheap WebGL2 capability check.
- * Always releases the temporary context in `finally` — leaving it alive is a
- * common cause of "THREE.WebGLRenderer: Context Lost" when R3F mounts next.
+ * Always releases the temporary context in `finally`.
  *
- * Do not use `failIfMajorPerformanceCaveat`: it false-negatives in remote/VM
- * browsers and is redundant with the software-rasterizer string check.
+ * Prefer skipping this entirely and inspecting the R3F renderer in `onCreated`
+ * when a Canvas will mount anyway — dual contexts are the Context Lost footgun.
  */
 export function probeWebGL2(): WebGLProbeResult {
   let gl: WebGL2RenderingContext | null = null
   try {
     const canvas = document.createElement('canvas')
     gl = canvas.getContext('webgl2', {
-      powerPreference: 'high-performance',
+      powerPreference: 'default',
       failIfMajorPerformanceCaveat: false,
     })
     if (!gl) return { ok: false, software: false, renderer: '' }
@@ -53,9 +52,12 @@ export function inspectWebGLRenderer(gl: {
 }): WebGLProbeResult {
   try {
     const ctx = gl.getContext()
+    // Avoid brittle `instanceof` across realm boundaries (Electron / embedded browsers).
+    const version = String(ctx.getParameter(ctx.VERSION) ?? '')
     const isWeb2 =
-      typeof WebGL2RenderingContext !== 'undefined' &&
-      ctx instanceof WebGL2RenderingContext
+      version.includes('WebGL 2') ||
+      (typeof WebGL2RenderingContext !== 'undefined' &&
+        ctx instanceof WebGL2RenderingContext)
     const dbg = ctx.getExtension('WEBGL_debug_renderer_info')
     const renderer = dbg
       ? String(ctx.getParameter(dbg.UNMASKED_RENDERER_WEBGL))
