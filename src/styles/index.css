@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+/* Self-hosted fonts with size-adjust metric overrides for swap stability */
+@font-face {
+  font-family: "Forge Display Fallback";
+  src: local("Arial");
+  size-adjust: 102%;
+  ascent-override: 95%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Forge Sans Fallback";
+  src: local("Arial");
+  size-adjust: 105%;
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/fonts/space-grotesk-variable.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/fonts/ibm-plex-sans-variable.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --color-forge: #0a0705;
+  --color-slag: #1c1917;
+  --color-ember: #ff6a00;
+  --color-molten: #ff8a1e;
+  --color-deep-amber: #c2410c;
+  --color-steel: #93a3b8;
+  --color-glass: rgb(255 255 255 / 0.08);
+  --color-glass-border: rgb(255 255 255 / 0.18);
+
+  --font-display: "Space Grotesk", "Forge Display Fallback", ui-sans-serif, sans-serif;
+  --font-sans: "IBM Plex Sans", "Forge Sans Fallback", ui-sans-serif, sans-serif;
+
+  --shadow-glass: inset 0 1px 0 rgb(255 255 255 / 0.22), 0 8px 32px rgb(0 0 0 / 0.35);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: auto;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--color-forge);
+    color: #fff;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-molten);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .glass {
+      backdrop-filter: none !important;
+      background: rgb(28 25 23 / 0.92) !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .glass {
+    background: var(--color-glass);
+    border: 1px solid var(--color-glass-border);
+    box-shadow: var(--shadow-glass);
+    contain: paint;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .glass {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+  }
+
+  @media (pointer: coarse) {
+    .glass {
+      background: rgb(28 25 23 / 0.82);
+      backdrop-filter: none;
+    }
+  }
+
+  .glass-warm:hover {
+    background: color-mix(in srgb, var(--color-ember) 12%, var(--color-glass));
+    border-color: color-mix(in srgb, var(--color-ember) 35%, var(--color-glass-border));
+  }
+
+  .section-act {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    padding: clamp(4rem, 10vh, 7rem) clamp(1.25rem, 4vw, 3rem);
+  }
+
+  .hero-h1 {
+    opacity: 1;
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "fetchedAt": "2026-08-09T17:39:51.093Z",
+  "source": "https://medium.com/feed/@symfonymaestro",
+  "posts": [
+    {
+      "title": "Auditoria de agentes de IA: o check verde mentiu, e a engenharia entregou sem o humano fechar…",
+      "link": "https://medium.com/@symfonymaestro/auditoria-de-agentes-de-ia-o-check-verde-mentiu-e-a-engenharia-entregou-sem-o-humano-fechar-704a116df4f3?source=rss-e5b2c0e0234d------2",
+      "guid": "https://medium.com/p/704a116df4f3",
+      "pubDate": "Thu, 06 Aug 2026 16:43:06 GMT",
+      "excerpt": "Auditoria de agentes de IA: o check verde mentiu, e a engenharia entregou sem o humano fechar (Semanas 9 a 12 como CAO)Uma ponte de dados travada desde o início do ciclo foi destravada em dias. Um volume grande de cobra…",
+      "categories": [],
+      "language": "pt"
+    },
+    {
+      "title": "Human in the loop na prática: o primeiro reembolso automático, os números do OKR e a fila que ficou…",
+      "link": "https://medium.com/@symfonymaestro/human-in-the-loop-na-pr%C3%A1tica-o-primeiro-reembolso-autom%C3%A1tico-os-n%C3%BAmeros-do-okr-e-a-fila-que-ficou-9c5da9aa4630?source=rss-e5b2c0e0234d------2",
+      "guid": "https://medium.com/p/9c5da9aa4630",
+      "pubDate": "Tue, 07 Jul 2026 13:01:03 GMT",
+      "excerpt": "Human in the loop na prática: o primeiro reembolso automático, os números do OKR e a fila que ficou (Semanas 7 e 8 como CAO)Em duas semanas o agente de estorno devolveu dinheiro de verdade e passou em todos os testes té…",
+      "categories": [
+        "automation",
+        "agentes-de-ia",
+        "inteligencia-artificial"
+      ],
+      "language": "pt"
+    },
+    {
+      "title": "Orquestração multi-agente: como saí de único desenvolvedor para revisor de um time inteiro (Semanas…",
+      "link": "https://medium.com/@symfonymaestro/orquestra%C3%A7%C3%A3o-multi-agente-como-sa%C3%AD-de-%C3%BAnico-desenvolvedor-para-revisor-de-um-time-inteiro-semanas-7e211e7b318c?source=rss-e5b2c0e0234d------2",
+      "guid": "https://medium.com/p/7e211e7b318c",
+      "pubDate": "Fri, 26 Jun 2026 12:40:12 GMT",
+      "excerpt": "Orquestração multi-agente: como saí de único desenvolvedor para revisor de um time inteiro (Semanas 5 e 6 como CAO)Multi-agente parou de ser truque e virou a forma como a gente entrega. O que aprendi em duas semanas sob…",
+      "categories": [
+        "inteligencia-artificial",
+        "produtividade",
+        "cursor",
+        "programação",
+        "agentes-de-ia"
+      ],
+      "language": "pt"
+    },
+    {
+      "title": "Produtividade com IA: o que eu realmente uso no dia a dia como CAO (rituais, stack, números e ROI)",
+      "link": "https://medium.com/@symfonymaestro/produtividade-com-ia-o-que-eu-realmente-uso-no-dia-a-dia-como-cao-rituais-stack-n%C3%BAmeros-e-roi-c96c84a0ad4e?source=rss-e5b2c0e0234d------2",
+      "guid": "https://medium.com/p/c96c84a0ad4e",
+      "pubDate": "Tue, 16 Jun 2026 13:01:02 GMT",
+      "excerpt": "Toda semana eu escrevo sobre o que estou construindo como CAO (Chief Agentic Officer) da ZapSign. Esse post é diferente. Não é sobre o que eu construo para a empresa. É sobre como eu uso IA no meu próprio trabalho, todo…",
+      "categories": [],
+      "language": "pt"
+    },
+    {
+      "title": "Governança de agentes de IA: a semana em que o agente ganhou as mãos, mas não a chave (Semana 4…",
+      "link": "https://medium.com/@symfonymaestro/governan%C3%A7a-de-agentes-de-ia-a-semana-em-que-o-agente-ganhou-as-m%C3%A3os-mas-n%C3%A3o-a-chave-semana-4-0c233ca9322e?source=rss-e5b2c0e0234d------2",
+      "guid": "https://medium.com/p/0c233ca9322e",
+      "pubDate": "Fri, 12 Jun 2026 17:57:42 GMT",
+      "excerpt": "Governança de agentes de IA: a semana em que o agente ganhou as mãos, mas não a chave (Semana 4 como CAO)O agente de estorno entrou em produção vigiada, o Google Chat parou de engolir respostas, e três dias de evento em…",
+      "categories": [
+        "ai-governance",
+        "startup",
+        "ai-agents-in-action",
+        "artificial-intelligence",
+        "automation"
+      ],
+      "language": "pt"
+    },
+    {
+      "title": "De chatbot interno a agente de IA: o que muda quando ele ganha memória (Semana 3 como CAO)",
+      "link": "https://medium.com/@symfonymaestro/de-chatbot-interno-a-agente-de-ia-o-que-muda-quando-ele-ganha-mem%C3%B3ria-semana-3-como-cao-2bc0e4d719ee?source=rss-e5b2c0e0234d------2",
+      "guid": "https://medium.com/p/2bc0e4d719ee",
+      "pubDate": "Tue, 02 Jun 2026 12:31:45 GMT",
+      "excerpt": "De comandos soltos a um agente com memória, e a pergunta que aparece quando ele começa a executar sozinho.Agente interno respondendo em thread com memória, RAG, observabilidade e indicando falta de conhecimento para res…",
+      "categories": [
+        "inteligencia-artificial",
+        "artificial-intelligence",
+        "customer-success",
+        "startup",
+        "ai-agent"
+      ],
+      "language": "pt"
+    },
+    {
+      "title": "RAG corporativo não é sobre volume: é sobre curadoria, freshness e cache",
+      "link": "https://medium.com/@symfonymaestro/rag-corporativo-n%C3%A3o-%C3%A9-sobre-volume-%C3%A9-sobre-curadoria-freshness-e-cache-b1ece7a0807e?source=rss-e5b2c0e0234d------2",
+      "guid": "https://medium.com/p/b1ece7a0807e",
+      "pubDate": "Fri, 29 May 2026 13:01:03 GMT",
+      "excerpt": "Como configurei 9 agentes e 4.709 fontes na ZapSign, descobri que o número de fontes nunca foi o ponto, e por que o monitoring com agente foi o salto de produtividade mais silencioso da semana.Na semana 2 como CAO, enqu…",
+      "categories": [
+        "software-architecture",
+        "agentic-rag",
+        "llm",
+        "engineering",
+        "ai-agent"
+      ],
+      "language": "pt"
+    },
+    {
+      "title": "Semana 2 como CAO: menos reuniões, mais mensagens e resultados",
+      "link": "https://medium.com/@symfonymaestro/semana-2-como-cao-menos-reuni%C3%B5es-mais-mensagens-e-resultados-d365a1658ca3?source=rss-e5b2c0e0234d------2",
+      "guid": "https://medium.com/p/d365a1658ca3",
+      "pubDate": "Thu, 28 May 2026 13:01:00 GMT",
+      "excerpt": "A semana em que parei de aceitar reunião pra conseguir construir, decisões da semana 1 viraram trabalho de engenheiros, e o n8n caiu ao vivo durante uma call estratégica.Matriz de conteúdos do orquestrador de agentes Ge…",
+      "categories": [
+        "startup",
+        "productivity",
+        "customer-success",
+        "ai-agent",
+        "leadership"
+      ],
+      "language": "pt"
+    },
+    {
+      "title": "Semana 1 como CAO: discovery, decisões e o que aconteceu de verdade",
+      "link": "https://medium.com/@symfonymaestro/semana-1-como-cao-discovery-decis%C3%B5es-e-o-que-aconteceu-de-verdade-321efb3a8d31?source=rss-e5b2c0e0234d------2",
+      "guid": "https://medium.com/p/321efb3a8d31",
+      "pubDate": "Mon, 18 May 2026 14:01:02 GMT",
+      "excerpt": "Como a primeira semana virou um exercício de ouvir antes de construir: reuniões, escolhas de stack, primeiros agentes em produção e os aprendizados que ninguém conta sobre ser Chief Agentic Officer na práticaEsta série…",
+      "categories": [
+        "software-engineering",
+        "artificial-intelligence",
+        "product-management",
+        "engineering-leadership",
+        "startup"
+      ],
+      "language": "pt"
+    },
+    {
+      "title": "FAQPage e Article com JSON-LD no Symfony: por que seu rich snippet não aparece no Google",
+      "link": "https://medium.com/@symfonymaestro/faqpage-e-article-com-json-ld-no-symfony-por-que-seu-rich-snippet-n%C3%A3o-aparece-no-google-6b2ea1593ae1?source=rss-e5b2c0e0234d------2",
+      "guid": "https://medium.com/p/6b2ea1593ae1",
+      "pubDate": "Mon, 13 Apr 2026 14:16:01 GMT",
+      "excerpt": "FAQPage e Article com JSON-LD no SymfonyNo artigo anterior desta série, ensinamos os crawlers de IA a entender o nosso SaaS com um arquivo llms.txt — e a gente já começou a aparecer em respostas do ChatGPT na primeira s…",
+      "categories": [
+        "seo",
+        "php",
+        "artificial-intelligence",
+        "schema",
+        "symfony"
+      ],
+      "language": "pt"
+    }
+  ]
+}
