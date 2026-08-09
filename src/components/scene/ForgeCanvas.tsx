@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
 import { Swarm } from './Swarm'
 import { GuardrailLattice } from './GuardrailLattice'
@@ -6,27 +6,12 @@ import { Emblems } from './Emblems'
 import { CameraRig } from './CameraRig'
 import { Effects } from './Effects'
 import { useSceneStore } from '@/stores/sceneStore'
-import {
-  isSoftwareRenderer,
-  selectInitialTier,
-  tierConfig,
-} from '@/lib/quality'
+import { selectInitialTier, tierConfig } from '@/lib/quality'
 import { shouldRunAnimationLoop } from '@/lib/motion-preference'
+import { inspectWebGLRenderer, probeWebGL2 } from '@/lib/webgl-probe'
 
-function probeWebGL2(): { ok: boolean; software: boolean } {
-  try {
-    const canvas = document.createElement('canvas')
-    const gl = canvas.getContext('webgl2', { failIfMajorPerformanceCaveat: true })
-    if (!gl) return { ok: false, software: false }
-    const dbg = gl.getExtension('WEBGL_debug_renderer_info')
-    const renderer = dbg
-      ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL))
-      : ''
-    return { ok: true, software: isSoftwareRenderer(renderer) }
-  } catch {
-    return { ok: false, software: false }
-  }
-}
+const POSTER_CLASS =
+  'pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_25%_15%,#c2410c55,transparent_40%),radial-gradient(ellipse_at_70%_80%,#ff6a0018,transparent_45%),#0a0705]'
 
 function SceneLights() {
   return (
@@ -65,14 +50,38 @@ function VisibilityGate() {
   return null
 }
 
+function ContextLossBridge({ onLost }: { onLost: () => void }) {
+  const { gl } = useThree()
+  useEffect(() => {
+    const canvas = gl.domElement
+    const handleLost = (event: Event) => {
+      // Prefer a clean poster fallback over a half-dead GPGPU pipeline.
+      event.preventDefault()
+      onLost()
+    }
+    canvas.addEventListener('webglcontextlost', handleLost, false)
+    return () => canvas.removeEventListener('webglcontextlost', handleLost, false)
+  }, [gl, onLost])
+  return null
+}
+
 export function ForgeCanvas() {
   const tier = useSceneStore((s) => s.tier)
   const setTier = useSceneStore((s) => s.setTier)
   const reducedMotion = useSceneStore((s) => s.reducedMotion)
   const [ready, setReady] = useState(false)
-  const cfg = tierConfig(tier)
+  const [contextLost, setContextLost] = useState(false)
+  const bootstrapped = useRef(false)
+  const cfg = tierConfig(tier === 'static' ? 'medium' : tier)
+
+  const handleContextLost = useCallback(() => {
+    setContextLost(true)
+    setTier('static')
+  }, [setTier])
 
   useEffect(() => {
+    // Probe releases its temporary context immediately (see webgl-probe.ts).
+    // This only decides whether to mount the real Canvas at all.
     const { ok, software } = probeWebGL2()
     const coarse = window.matchMedia('(pointer: coarse)').matches
     const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory
@@ -91,14 +100,14 @@ export function ForgeCanvas() {
     setReady(true)
   }, [reducedMotion, setTier])
 
-  // Reduced motion / static: poster only — no rAF loop (plan §4)
-  if (!ready || tier === 'static' || !shouldRunAnimationLoop(reducedMotion)) {
-    return (
-      <div
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_25%_15%,#c2410c55,transparent_40%),radial-gradient(ellipse_at_70%_80%,#ff6a0018,transparent_45%),#0a0705]"
-        aria-hidden
-      />
-    )
+  const showPoster =
+    !ready ||
+    contextLost ||
+    tier === 'static' ||
+    !shouldRunAnimationLoop(reducedMotion)
+
+  if (showPoster) {
+    return <div className={POSTER_CLASS} aria-hidden />
   }
 
   return (
@@ -114,13 +123,24 @@ export function ForgeCanvas() {
           powerPreference: 'high-performance',
           alpha: false,
           stencil: false,
+          depth: true,
+          failIfMajorPerformanceCaveat: false,
         }}
         camera={{ position: [0, 0.35, 6.2], fov: 45, near: 0.1, far: 40 }}
         frameloop="always"
         onCreated={({ gl }) => {
           gl.setClearColor('#0A0705')
+          // Re-validate on the real context (no second allocation). Soft rasterizers
+          // that slipped past the probe still fall back to the poster.
+          if (bootstrapped.current) return
+          bootstrapped.current = true
+          const inspected = inspectWebGLRenderer(gl)
+          if (!inspected.ok || inspected.software) {
+            setTier('static')
+          }
         }}
       >
+        <ContextLossBridge onLost={handleContextLost} />
         <VisibilityGate />
         <SceneLights />
         <CameraRig />

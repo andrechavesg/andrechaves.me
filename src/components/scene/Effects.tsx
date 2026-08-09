@@ -1,31 +1,29 @@
 import { EffectComposer, Bloom, ChromaticAberration, Vignette } from '@react-three/postprocessing'
-import { BlendFunction } from 'postprocessing'
 import { useSceneStore } from '@/stores/sceneStore'
 import { tierConfig } from '@/lib/quality'
-import { Vector2 } from 'three'
+
+const CA_OFFSET: [number, number] = [0.0007, 0.0009]
 
 export function Effects() {
   const tier = useSceneStore((s) => s.tier)
   const cfg = tierConfig(tier)
+
   if (tier === 'static') return null
 
   return (
-    <EffectComposer multisampling={0} enableNormalPass={false}>
+    <EffectComposer multisampling={0} enableNormalPass={false} stencilBuffer={false}>
       {cfg.bloom ? (
         <Bloom
-          intensity={0.72}
-          luminanceThreshold={0.28}
+          intensity={0.65}
+          luminanceThreshold={0.32}
           luminanceSmoothing={0.45}
-          mipmapBlur
+          mipmapBlur={cfg.bloomMipmap}
           resolutionScale={cfg.bloomScale}
         />
       ) : (
         <></>
       )}
-      <ChromaticAberration
-        blendFunction={BlendFunction.NORMAL}
-        offset={new Vector2(0.0007, 0.0009)}
-      />
+      <ChromaticAberration offset={CA_OFFSET} />
       <Vignette eskil={false} offset={0.22} darkness={0.7} />
     </EffectComposer>
   )

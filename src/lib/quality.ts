@@ -57,14 +57,43 @@ export function adaptTier(current: QualityTier, sample: AdaptiveSample): Quality
 }
 
 export function tierConfig(tier: QualityTier) {
+  // Particle counts must stay ≤ Swarm FBO slots (128² = 16_384).
   switch (tier) {
     case 'high':
-      return { particles: 200_000, bloom: true, bloomScale: 0.5, dprMax: 1.5, pointSize: 1.2 }
+      return {
+        particles: 16_384,
+        bloom: true,
+        bloomMipmap: true,
+        bloomScale: 0.4,
+        dprMax: 1.25,
+        pointSize: 1.2,
+      }
     case 'medium':
-      return { particles: 80_000, bloom: true, bloomScale: 0.35, dprMax: 1.25, pointSize: 1.0 }
+      return {
+        particles: 10_240,
+        bloom: true,
+        bloomMipmap: false,
+        bloomScale: 0.3,
+        dprMax: 1.0,
+        pointSize: 1.0,
+      }
     case 'low':
-      return { particles: 30_000, bloom: false, bloomScale: 0, dprMax: 1.0, pointSize: 0.9 }
+      return {
+        particles: 4_096,
+        bloom: false,
+        bloomMipmap: false,
+        bloomScale: 0,
+        dprMax: 1.0,
+        pointSize: 0.9,
+      }
     case 'static':
-      return { particles: 0, bloom: false, bloomScale: 0, dprMax: 1.0, pointSize: 0 }
+      return {
+        particles: 0,
+        bloom: false,
+        bloomMipmap: false,
+        bloomScale: 0,
+        dprMax: 1.0,
+        pointSize: 0,
+      }
   }
 }

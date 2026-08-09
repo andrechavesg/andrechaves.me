@@ -5,7 +5,9 @@ import { useSceneStore } from '@/stores/sceneStore'
 import { adaptTier, tierConfig } from '@/lib/quality'
 import { simFragment, simVertex, renderFragment, renderVertex } from './shaders'
 
-const SIZE = 256 // 65,536 particles base; scaled via draw range
+/** 128² = 16,384 slots — enough for high tier, far less VRAM than 256². */
+const SIZE = 128
+const SLOT_COUNT = SIZE * SIZE
 
 export function Swarm() {
   const { gl } = useThree()
@@ -15,18 +17,22 @@ export function Swarm() {
   const reducedMotion = useSceneStore((s) => s.reducedMotion)
   const cfg = tierConfig(tier)
 
-  const { rtA, rtB, simScene, simCamera, simMaterial, points, geo } = useMemo(() => {
+  // GPU resources are created once per gl — never rebuild on tier/pointSize changes
+  // (that previously leaked FBOs under StrictMode / adaptive tier steps).
+  const gpu = useMemo(() => {
     const rtOpts: THREE.RenderTargetOptions = {
       type: THREE.HalfFloatType,
       minFilter: THREE.NearestFilter,
       magFilter: THREE.NearestFilter,
       format: THREE.RGBAFormat,
+      depthBuffer: false,
+      stencilBuffer: false,
     }
     const rtA = new THREE.WebGLRenderTarget(SIZE, SIZE, rtOpts)
     const rtB = new THREE.WebGLRenderTarget(SIZE, SIZE, rtOpts)
 
-    const data = new Float32Array(SIZE * SIZE * 4)
-    for (let i = 0; i < SIZE * SIZE; i++) {
+    const data = new Float32Array(SLOT_COUNT * 4)
+    for (let i = 0; i < SLOT_COUNT; i++) {
       data[i * 4] = (Math.random() - 0.5) * 0.15
       data[i * 4 + 1] = (Math.random() - 0.5) * 0.15 - 0.55
       data[i * 4 + 2] = (Math.random() - 0.5) * 0.15
@@ -47,11 +53,11 @@ export function Swarm() {
     })
     const simScene = new THREE.Scene()
     const simCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
-    const simQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), simMaterial)
+    const simGeo = new THREE.PlaneGeometry(2, 2)
+    const simQuad = new THREE.Mesh(simGeo, simMaterial)
     simScene.add(simQuad)
 
-    const count = SIZE * SIZE
-    const positions = new Float32Array(count * 3)
+    const positions = new Float32Array(SLOT_COUNT * 3)
     for (let y = 0; y < SIZE; y++) {
       for (let x = 0; x < SIZE; x++) {
         const i = y * SIZE + x
@@ -68,7 +74,7 @@ export function Swarm() {
       fragmentShader: renderFragment,
       uniforms: {
         uPositions: { value: rtA.texture },
-        uSize: { value: cfg.pointSize },
+        uSize: { value: 1.0 },
         uProgress: { value: 0 },
       },
       transparent: true,
@@ -77,15 +83,17 @@ export function Swarm() {
     })
     const points = new THREE.Points(geo, renderMat)
 
-    return { rtA, rtB, simScene, simCamera, simMaterial, points, geo }
-  }, [gl, cfg.pointSize])
+    return { rtA, rtB, simScene, simCamera, simMaterial, points, geo, seed, simGeo }
+  }, [gl])
+
+  const { rtA, rtB, simScene, simCamera, simMaterial, points, geo, seed, simGeo } = gpu
 
   const flip = useRef(false)
   const frames = useRef<number[]>([])
   const setTier = useSceneStore((s) => s.setTier)
 
   useEffect(() => {
-    const max = Math.min(cfg.particles, SIZE * SIZE)
+    const max = Math.min(cfg.particles, SLOT_COUNT)
     geo.setDrawRange(0, max)
   }, [cfg.particles, geo])
 
@@ -93,15 +101,18 @@ export function Swarm() {
     return () => {
       rtA.dispose()
       rtB.dispose()
+      seed.dispose()
       simMaterial.dispose()
+      simGeo.dispose()
       geo.dispose()
       ;(points.material as THREE.Material).dispose()
     }
-  }, [rtA, rtB, simMaterial, geo, points])
+  }, [rtA, rtB, seed, simMaterial, simGeo, geo, points])
 
   useFrame((state, delta) => {
     if (reducedMotion || tier === 'static') return
     if (typeof document !== 'undefined' && document.hidden) return
+    if (gl.getContext().isContextLost()) return
 
     frames.current.push(delta * 1000)
     if (frames.current.length >= 60) {

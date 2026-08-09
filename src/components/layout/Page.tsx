@@ -56,12 +56,21 @@ export function Page({ locale }: { locale: Locale }) {
 
   useEffect(() => {
     if (reducedMotion) return
-    const idle = window.requestIdleCallback
-      ? window.requestIdleCallback(() => setShowCanvas(true))
-      : window.setTimeout(() => setShowCanvas(true), 200)
+    let cancelled = false
+    const reveal = () => {
+      if (!cancelled) setShowCanvas(true)
+    }
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(reveal)
+      return () => {
+        cancelled = true
+        window.cancelIdleCallback(id)
+      }
+    }
+    const id = window.setTimeout(reveal, 200)
     return () => {
-      if (typeof idle === 'number') window.clearTimeout(idle)
-      else window.cancelIdleCallback?.(idle as number)
+      cancelled = true
+      window.clearTimeout(id)
     }
   }, [reducedMotion])
 

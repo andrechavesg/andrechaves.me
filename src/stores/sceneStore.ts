@@ -30,7 +30,8 @@ interface SceneState {
 export const useSceneStore = create<SceneState>((set) => ({
   act: 'cold-open',
   progress: 0,
-  tier: 'high',
+  // Medium until ForgeCanvas capability bootstrap — avoids a high-VRAM first frame.
+  tier: 'medium',
   reducedMotion: false,
   hitl: 'idle',
   greenCheckLied: false,

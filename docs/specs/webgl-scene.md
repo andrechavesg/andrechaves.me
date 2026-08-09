@@ -20,10 +20,12 @@ One persistent WebGL2 scene (no WebGPU) with GPGPU swarm, guardrail lattice, blo
 ## Quality tiers
 | Tier | Particles | Bloom | DPR max |
 |------|-----------|-------|---------|
-| high | ~200k desktop budget (capped at FBO 65k) | yes | 1.5 |
-| medium | reduced | reduced resolutionScale | 1.25 |
+| high | ≤16,384 (FBO slots) | yes (mipmap) | 1.25 |
+| medium | reduced | yes (no mipmap) | 1.0 |
 | low | minimal | off | 1.0 |
 | static | poster / single frame | n/a | n/a |
 
 ## Notes
-FBO is 256² = 65,536 max points; tier particle counts clamp via draw range. Desktop “200k–500k” remains a planning ceiling — raise SIZE only after fill-rate profiling.
+FBO is 128² = 16,384 max points; tier particle counts clamp via draw range.
+Capability probe must call `WEBGL_lose_context` before mounting the R3F Canvas — a leaked probe context is a common cause of immediate Context Lost on desktop Chrome.
+Context-lost events fall back to the CSS poster (no black void).

@@ -52,6 +52,13 @@ describe('quality tier selection', () => {
     const slow = Array.from({ length: 60 }, () => 32)
     expect(adaptTier('high', { frameMs: slow })).toBe('medium')
     expect(tierConfig('low').bloom).toBe(false)
-    expect(tierConfig('high').dprMax).toBe(1.5)
+    expect(tierConfig('high').dprMax).toBe(1.25)
+  })
+
+  it('keeps particle budgets within the Swarm FBO slot count', () => {
+    const FBO_SLOTS = 128 * 128
+    expect(tierConfig('high').particles).toBeLessThanOrEqual(FBO_SLOTS)
+    expect(tierConfig('medium').particles).toBeLessThanOrEqual(FBO_SLOTS)
+    expect(tierConfig('low').particles).toBeLessThanOrEqual(FBO_SLOTS)
   })
 })
