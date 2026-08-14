@@ -1,10 +1,10 @@
 # Spec: Deploy & DNS Cutover
 
 ## Goal
-Cloudflare Pages hosting ready; actionable DNS cutover from GoDaddy Website Builder to andrechaves.me.
+Cloudflare Workers static assets hosting ready; actionable DNS cutover from GoDaddy Website Builder to andrechaves.me.
 
 ## Acceptance criteria
-- [x] `wrangler.toml` (or Pages config) for project `andrechaves-me`
+- [x] `wrangler.toml` Workers assets config for `andrechaves-me` (`not_found_handling = "404-page"`)
 - [x] Repo `robots.txt` permits GPTBot, ClaudeBot, PerplexityBot
 - [x] `sitemap.xml` includes `/` and `/pt/`
 - [x] OG images per locale under `public/og/`

@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Personal craft-flex site for André de Moraes Chaves — Hefesto Software House",
   "scripts": {
+    "postinstall": "node scripts/workers-ci-build.mjs",
     "predev": "node scripts/fetch-medium.mjs",
     "dev": "vite-react-ssg dev",
     "prebuild": "node scripts/fetch-medium.mjs",
@@ -14,7 +15,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "fetch-medium": "node scripts/fetch-medium.mjs",
-    "deploy": "npm run build && wrangler pages deploy dist --project-name=andrechaves-me"
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:dry": "npm run build && wrangler deploy --dry-run"
   },
   "dependencies": {
     "@react-three/drei": "10.7.8",

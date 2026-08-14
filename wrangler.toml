@@ -1,6 +1,15 @@
+# Cloudflare Workers static assets (migrated from Pages).
+# Deploy: npm run deploy  →  wrangler deploy
 name = "andrechaves-me"
-compatibility_date = "2026-08-01"
-pages_build_output_dir = "dist"
+compatibility_date = "2026-08-14"
+workers_dev = true
+preview_urls = true
+
+[assets]
+directory = "./dist"
+# SSG site: missing paths serve nearest 404.html with HTTP 404
+# (stops hashed /assets/* from soft-serving index.html as JS).
+not_found_handling = "404-page"
 
 [vars]
 SITE_URL = "https://andrechaves.me"
