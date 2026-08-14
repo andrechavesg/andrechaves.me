@@ -21,3 +21,7 @@ Seven cinematic acts driven by GSAP ScrollTrigger against one persistent scene; 
 - [x] Lenis smooth scroll (package `lenis`, not @studio-freight/lenis)
 - [x] Name is DOM-only H1 (no 3D display type); SVG ExtrudeGeometry emblems for Hefesto / PontoNet
 - [x] Human design revision: still-frame screenshots of all 7 acts signed off visually (stage-right forge, act-gated emblems, reduced bloom; mobile copy clear)
+- [x] Scrollbar hidden in cinematic mode; act sections snap (`scroll-snap-align: start`)
+- [x] Pin + scrub ScrollTrigger per act drives WebGL progress and DOM `[data-reveal]` transitions
+- [x] Autoplay advances acts (~7s dwell) until first wheel/touch/keyboard scroll; session-persisted takeover
+- [x] Reduced motion / Motion off: no Lenis, no pin/autoplay (hook disabled)

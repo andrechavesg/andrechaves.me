@@ -28,7 +28,9 @@ function ActShell({
       data-act={id}
       aria-label={label}
     >
-      <div className="mx-auto w-full max-w-6xl">{children}</div>
+      <div className="mx-auto w-full max-w-6xl section-reveal" data-reveal>
+        {children}
+      </div>
     </section>
   )
 }

@@ -57,6 +57,24 @@
     scroll-behavior: auto;
   }
 
+  /* Cinematic mode: hide scrollbars; snap acts (Lenis still owns the scroll). */
+  html.cinematic-scroll,
+  html.cinematic-scroll body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html.cinematic-scroll::-webkit-scrollbar,
+  html.cinematic-scroll body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  html.cinematic-scroll {
+    scroll-snap-type: y mandatory;
+  }
+
   body {
     margin: 0;
     min-height: 100%;
@@ -121,10 +139,17 @@
     position: relative;
     z-index: 1;
     min-height: 100vh;
+    min-height: 100svh;
     min-height: 100dvh;
     display: flex;
     align-items: center;
     padding: clamp(4rem, 10vh, 7rem) clamp(1.25rem, 4vw, 3rem);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .section-reveal {
+    will-change: transform, opacity;
   }
 
   .hero-h1 {
