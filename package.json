@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "fetch-medium": "node scripts/fetch-medium.mjs",
-    "deploy": "npm run build && wrangler pages deploy dist --project-name=andrechaves-me"
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:dry": "npm run build && wrangler deploy --dry-run"
   },
   "dependencies": {
     "@react-three/drei": "10.7.8",

@@ -17,7 +17,7 @@ Spectacle is primary; conversion is secondary. One persistent WebGL2 forge scene
 - Medium RSS prebuild → `src/data/posts.json` with last-good fallback (never fails the build)
 - Writing section shows Portuguese titles with a visible language chip
 - Adaptive WebGL2 quality tiers + reduced-motion static path (kills rAF)
-- Cloudflare Pages–ready (`wrangler.toml`) + DNS cutover runbook from GoDaddy Website Builder
+- Cloudflare Workers static assets (`wrangler.toml`) + DNS cutover runbook from GoDaddy Website Builder
 
 ---
 
@@ -96,35 +96,35 @@ npm run preview
 
 ---
 
-## Deploy (Cloudflare Pages)
+## Deploy (Cloudflare Workers static assets)
 
-Config: [`wrangler.toml`](wrangler.toml) — project `andrechaves-me`, output `dist`.
+Config: [`wrangler.toml`](wrangler.toml) — Worker `andrechaves-me`, assets from `dist`, `not_found_handling = "404-page"`.
 
 `npm run build` runs `scripts/verify-assets.mjs` so every `/assets/…` hash referenced by SSG HTML must exist on disk (prevents MIME `text/html` module failures).
 
 ```bash
 npx wrangler login          # once per machine
-npm run deploy
-# equivalent:
-# npm run build && npx wrangler pages deploy dist --project-name=andrechaves-me
+npm run deploy              # build + wrangler deploy
+# dry-run (no upload):
+# npm run deploy:dry
 ```
 
-**CI:** [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) deploys on push to `main` when these repo secrets exist:
+**CI:** [`.github/workflows/deploy-workers.yml`](.github/workflows/deploy-workers.yml) deploys on push to `main` when these repo secrets exist:
 
 | Secret | Purpose |
 |--------|---------|
-| `CLOUDFLARE_API_TOKEN` | Pages edit token |
+| `CLOUDFLARE_API_TOKEN` | Workers edit token |
 | `CLOUDFLARE_ACCOUNT_ID` | Account id |
 
-Or connect this GitHub repo in the Cloudflare dashboard (Workers & Pages → Create → Connect Git):
+Or connect this GitHub repo in the Cloudflare dashboard (Workers & Pages → Create → Worker → Connect Git / Workers Builds):
 
 | Setting | Value |
 |---------|--------|
 | Build command | `npm run build` |
-| Output directory | `dist` |
+| Deploy command | `npx wrangler deploy` |
 | Node version | `22` |
 
-Verify on `*.pages.dev` before touching DNS. Missing `/assets/*` must return **404** (not 200 HTML).
+Verify on `*.workers.dev` (or a Workers preview URL), then attach custom domain `andrechaves.me`. Missing `/assets/*` must return **404** (not 200 HTML).
 
 ---
 
