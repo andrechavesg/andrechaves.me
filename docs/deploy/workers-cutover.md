@@ -24,13 +24,19 @@ This repo is configured as a **Workers static assets** project.
 
 ## Path B — Workers Builds (Git) via dashboard
 
-1. Dashboard → **Workers & Pages** → **Create** → import `andrechavesg/andrechaves.me`.
-2. Ensure it creates a **Worker** (not Pages). Name must match wrangler: `andrechaves-me`.
-3. Build settings:
-   - Build command: `npm run build`
-   - Deploy command: `npx wrangler deploy`
-   - Production branch: `main`
-4. Push to `main` triggers builds; MCP **Cloudflare-builds** can then list/debug via `workers_list` → `workers_builds_list_builds`.
+Worker `andrechaves-me` is already connected to this repo (tag `045d749982904e179cadfcf7bbe8ef5b`).
+
+Recommended build settings (Worker → **Settings** → **Build**):
+
+| Setting | Value |
+|---------|--------|
+| Build command | `npm run build` |
+| Deploy command (production / `main`) | `npx wrangler deploy` |
+| Non-production deploy | `npx wrangler versions upload` |
+
+If the dashboard **Build command** is left empty, `scripts/workers-ci-build.mjs` (via `postinstall`) still runs `npm run build` when Cloudflare injects `WORKERS_CI=1`, so `dist/` exists before Wrangler upload.
+
+Push to `main` for production; other branches upload preview versions. MCP **Cloudflare-builds** can list/debug via worker id → `workers_builds_list_builds`.
 
 ## Move andrechaves.me off Pages
 

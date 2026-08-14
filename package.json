@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Personal craft-flex site for André de Moraes Chaves — Hefesto Software House",
   "scripts": {
+    "postinstall": "node scripts/workers-ci-build.mjs",
     "predev": "node scripts/fetch-medium.mjs",
     "dev": "vite-react-ssg dev",
     "prebuild": "node scripts/fetch-medium.mjs",
