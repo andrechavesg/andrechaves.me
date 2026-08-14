@@ -126,6 +126,8 @@ Or connect this GitHub repo in the Cloudflare dashboard (Workers & Pages → Cre
 
 Verify on `*.workers.dev` (or a Workers preview URL), then attach custom domain `andrechaves.me`. Missing `/assets/*` must return **404** (not 200 HTML).
 
+Cutover from the existing Pages project: [`docs/deploy/workers-cutover.md`](docs/deploy/workers-cutover.md).
+
 ---
 
 ## Publish andrechaves.me (DNS cutover)
