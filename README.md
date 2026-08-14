@@ -100,13 +100,23 @@ npm run preview
 
 Config: [`wrangler.toml`](wrangler.toml) — project `andrechaves-me`, output `dist`.
 
+`npm run build` runs `scripts/verify-assets.mjs` so every `/assets/…` hash referenced by SSG HTML must exist on disk (prevents MIME `text/html` module failures).
+
 ```bash
+npx wrangler login          # once per machine
 npm run deploy
 # equivalent:
 # npm run build && npx wrangler pages deploy dist --project-name=andrechaves-me
 ```
 
-Or connect this GitHub repo in the Cloudflare dashboard:
+**CI:** [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) deploys on push to `main` when these repo secrets exist:
+
+| Secret | Purpose |
+|--------|---------|
+| `CLOUDFLARE_API_TOKEN` | Pages edit token |
+| `CLOUDFLARE_ACCOUNT_ID` | Account id |
+
+Or connect this GitHub repo in the Cloudflare dashboard (Workers & Pages → Create → Connect Git):
 
 | Setting | Value |
 |---------|--------|
@@ -114,7 +124,7 @@ Or connect this GitHub repo in the Cloudflare dashboard:
 | Output directory | `dist` |
 | Node version | `22` |
 
-Verify on `*.pages.dev` before touching DNS.
+Verify on `*.pages.dev` before touching DNS. Missing `/assets/*` must return **404** (not 200 HTML).
 
 ---
 

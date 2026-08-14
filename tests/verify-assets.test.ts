@@ -11,9 +11,11 @@ describe('verify-assets script', () => {
     expect(src).toContain('process.exit(1)')
   })
 
-  it('redirects missing assets to a dedicated 404 page', () => {
+  it('ships a root 404.html so Pages does not soft-serve index for missing assets', () => {
     const redirects = readFileSync(join(process.cwd(), 'public/_redirects'), 'utf8')
-    expect(redirects).toMatch(/\/assets\/\*\s+\/404-asset\.html\s+404/)
-    expect(existsSync(join(process.cwd(), 'public/404-asset.html'))).toBe(true)
+    expect(redirects).not.toMatch(/\s404\s*$/m)
+    expect(existsSync(join(process.cwd(), 'public/404.html'))).toBe(true)
+    const html = readFileSync(join(process.cwd(), 'public/404.html'), 'utf8')
+    expect(html).toMatch(/Not found/i)
   })
 })

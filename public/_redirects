@@ -1,7 +1,7 @@
 # Trailing-slash consistency for the PT locale
 /pt  /pt/  301
 
-# Missing hashed assets must 404 — never soft-fallback to index.html
-# (200 + text/html breaks ES module MIME checks and can be cached as immutable).
-# Static files that exist are still served first by Cloudflare Pages.
-/assets/*  /404-asset.html  404
+# NOTE: Cloudflare Pages _redirects does NOT support status 404.
+# Missing paths (including /assets/*) fall back to /index.html with 200
+# unless public/404.html exists — then Pages serves it with HTTP 404.
+# That 404 is what stops ES modules from treating HTML as JavaScript.

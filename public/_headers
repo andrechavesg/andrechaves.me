@@ -4,14 +4,17 @@
   X-Frame-Options: DENY
   Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
 
-# Long-cache only successful hashed builds. Missing /assets/* now 404 via _redirects
-# so they never get this header as a soft-200 HTML body.
+# Long-cache hashed builds. Missing assets 404 via public/404.html (not soft-200 HTML).
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
   X-Content-Type-Options: nosniff
 
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
+
+/404.html
+  Cache-Control: no-store
+  X-Robots-Tag: noindex
 
 /404-asset.html
   Cache-Control: no-store
