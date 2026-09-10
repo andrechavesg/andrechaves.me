@@ -47,7 +47,7 @@
     "typescript": "^5.8.3",
     "vite": "8.2.1",
     "vite-react-ssg": "0.9.2",
-    "vitest": "4.1.10",
+    "vitest": "4.1.11",
     "wrangler": "^4.20.0"
   },
   "overrides": {
